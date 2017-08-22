@@ -1,0 +1,4 @@
+nose
+djangorestframework
+markdown
+django-filter
