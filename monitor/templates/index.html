@@ -7,7 +7,6 @@
     <title>Mini Monitor</title>
 </head>
 <body>
-<div style="margin-top: 100px"></div>
 <div id="nav" class="container">
     <ul class="nav nav-tabs nav-justified">
       <li role="presentation" v-for="group in groups" v-bind:class="{'active':group.id==1}" v-on:click="getApps(group.id)">
@@ -25,9 +24,9 @@
     <!-- Tab panes-->
     <div class="tab-content">
         <div role="tabpanel" v-for="group in groups" v-bind:class="{'tab-pane fade-in active':group.id==1,'tab-pane fade-in':group.id!=1}" v-bind:id="'tab_' + group.id">
-            <table class="table table-responsive table-bordered table-hover">
+            <table class="table table-responsive table-hover">
                 <thead>
-                    <tr>
+                    <tr class="bg-info">
                         <th>Status</th>
                         <th>Host</th>
                         <th>Name</th>
@@ -47,26 +46,50 @@
                         <td colspan="4" class="bg-info">
                             <table class="table table-stripped">
                                 <tr>
-                                    <td height="200px">Map.......</td>
+                                    <td>Map</td>
                                 </tr>
                                 <tr>
-                                    <td><span><b>History:&nbsp;</b></span>
+                                    <td><span>History:&nbsp;</span>
                                         <span v-for="app_history in app_histories">
-                                            <span class="label label-primary">{{ app_history.status }}</span>
+                                            <span v-if="app_history.status=='OK'" class="label label-success">{{ app_history.status }}</span>
+                                            <span v-else-if="app_history.status=='WARN'" class="label label-warning">{{ app_history.status }}</span>
+                                            <span v-else class="label label-danger">{{ app_history.status }}</span>
                                             <span class="glyphicon glyphicon-arrow-right"></span>
                                         </span>
-
+                                    </td>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td height="100px">Message</td>
+                                    <td><table class="table table-bordered">
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>Status</th>
+                                            <th>Message</th>
+                                        </tr>
+                                        <tbody v-for="app_history in app_histories" >
+                                            <tr v-if="app_history.status=='OK'" class="bg-success">
+                                                <td width="5%">{{ app_history.status }}</td>
+                                                <td width="20%">{{ app_history.time }}</td>
+                                                <td width="75%">{{ app_history.message }}</td>
+                                            </tr>
+                                            <tr v-if="app_history.status=='WARN'" class="bg-warning">
+                                                <td width="5%">{{ app_history.status }}</td>
+                                                <td width="20%">{{ app_history.time }}</td>
+                                                <td width="75%">{{ app_history.message }}</td>
+                                            </tr>
+                                            <tr v-if="app_history.status=='ERROR'" class="bg-danger">
+                                                <td width="5%">{{ app_history.status }}</td>
+                                                <td width="20%">{{ app_history.time }}</td>
+                                                <td width="75%">{{ app_history.message }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table></td>
                                 </tr>
                             </table>
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <div class="collapse" v-for="app in apps" v-bind:id="'history_' + app.id">{{ app.id }}---------------------</div>
         </div>
 
     </div>
