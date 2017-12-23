@@ -1,7 +1,8 @@
-
+# coding=utf-8
 
 from django.db import models
-from datetime import datetime
+# from datetime import datetime
+from django.utils import timezone as datetime
 
 
 # Create your models here.
@@ -10,7 +11,7 @@ class App(models.Model):
         db_table = 'app'
 
     name = models.CharField(max_length=128)
-    host_ip = models.IntegerField()
+    host_id = models.IntegerField()
     group_id = models.IntegerField()
     configuration = models.TextField()
     status = models.CharField(max_length=12)
@@ -18,18 +19,12 @@ class App(models.Model):
     enable = models.IntegerField()
     last_update = models.DateTimeField()
     
-
     @classmethod
-    def create(cls, name, host_ip, status, message, enable, group_id,last_update):
-        app = cls(name=name,
-            host_ip=host_ip,
-            status=status,
-            message=message,
-            enable=enable,
-            group_id=group_id,
-            last_update=last_update
-            )
+    def create(cls, name, host_id, status, message, enable, group_id):
+        app = cls(name=name, host_id=host_id, status=status, message=message, enable=enable, group_id=group_id,
+                  last_update=datetime.now())
         return app
+
 
 class AppStatistics(models.Model):
     class Meta:
@@ -40,9 +35,10 @@ class AppStatistics(models.Model):
     time = models.DateTimeField(auto_now=True)
 
     @classmethod
-    def create(cls,app_id,statistics):
+    def create(cls, app_id, statistics):
         appStatistics = cls(app_id=app_id,statistics=statistics,)
         return appStatistics    
+
 
 class AppHistory(models.Model):
     class Meta:
@@ -61,6 +57,7 @@ class AppHistory(models.Model):
         group = cls(app_id=app_id, status=status,message=message)
         return group
 
+
 class Group(models.Model):
     class Meta:
         db_table = 'app_group'
@@ -72,6 +69,7 @@ class Group(models.Model):
     def create(cls, unique_name, display_name):
         group = cls(unique_name=unique_name, display_name=display_name)
         return group
+
 
 class Host(models.Model):
     class Meta:

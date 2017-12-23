@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml"
+      xmlns:v-if="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <title>Mini Monitor</title>
+</head>
+<body>
+<div style="margin-top: 100px"></div>
+<div id="nav" class="container">
+    <ul class="nav nav-tabs nav-justified">
+      <li role="presentation" v-for="group in groups" v-bind:class="{'active':group.id==1}" v-on:click="getApps(group.id)">
+          <a v-bind:href="'#tab_' + group.id" data-toggle="tab">{{ group.displayName }}&nbsp;
+              <span class="badge" v-if="group.statistics.error>0" style="background-color: red">{{ group.statistics.total }}</span>
+              <span class="badge" v-else-if="group.statistics.warn>0" style="background-color: orange">{{ group.statistics.total }}</span>
+              <span class="badge" v-else style="background-color: green">{{ group.statistics.total }}</span>
+          </a>
+      </li>
+    </ul>
+    <div class="input-group">
+        <span class="input-group-addon">Filter</span>
+        <input type="text" class="form-control" placeholder="app name">
+    </div>
+    <!-- Tab panes-->
+    <div class="tab-content">
+        <div role="tabpanel" v-for="group in groups" v-bind:class="{'tab-pane fade-in active':group.id==1,'tab-pane fade-in':group.id!=1}" v-bind:id="'tab_' + group.id">
+            <table class="table table-responsive table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Host</th>
+                        <th>Name</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody v-for="app in apps">
+                    <tr data-toggle="collapse" v-bind:data-target="'#history_' + app.id" v-on:click="getAppHistory(app.id)">
+                        <td width="5%" v-if="app.status=='OK'" align="center"><span class="glyphicon glyphicon-ok-sign" style="color: green;font-size: 18px;"></span></td>
+                        <td width="5%" v-if="app.status=='ERROR'" align="center"><span class="glyphicon glyphicon-remove-sign" style="color:red;font-size: 18px;"></span></td>
+                        <td width="5%" v-if="app.status=='WARN'" align="center"><span class="glyphicon glyphicon-exclamation-sign" style="color:orange;font-size: 18px;"></span></td>
+                        <td width="20%">{{ app.host_id }}</td>
+                        <td width="20%">{{ app.name }}</td>
+                        <td width="55%">{{ app.message }}</td>
+                    </tr>
+                    <tr class="collapse" v-bind:id="'history_' + app.id">
+                        <td colspan="4" class="bg-info">
+                            <table class="table table-stripped">
+                                <tr>
+                                    <td height="200px">Map.......</td>
+                                </tr>
+                                <tr>
+                                    <td><span><b>History:&nbsp;</b></span>
+                                        <span v-for="app_history in app_histories">
+                                            <span class="label label-primary">{{ app_history.status }}</span>
+                                            <span class="glyphicon glyphicon-arrow-right"></span>
+                                        </span>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td height="100px">Message</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="collapse" v-for="app in apps" v-bind:id="'history_' + app.id">{{ app.id }}---------------------</div>
+        </div>
+
+    </div>
+</div>
+<script src="../static/js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/js/vue-resource.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/js/monitor.js" type="text/javascript" charset="utf-8"></script>
+<script>
+
+</script>
+</body>
+</html>
