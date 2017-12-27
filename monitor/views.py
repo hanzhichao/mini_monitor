@@ -121,68 +121,27 @@ def manage_detail(request, pk):
 
 @api_view(['GET', 'POST'])
 @csrf_exempt
-def app_statistics_list(request):
+def app_statistics_list(request, pk):
     """
-    List all app_statisticss or create a new app statistics
+    List all app_statistics
     """
     if request.method == 'GET':
-        tasks = AppStatistics.objects.all()
-        serializer = AppStatisticsSerializer(tasks, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        # serializer = AppStatisticsSerializer(data=request.DATA)
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return Response(serializer.data, status=201)
-        app_id = request.data.get('app_id')
-        statistics = request.data.get('statistics')
-        descrstatisticstion = request.data.get('descrstatisticstion')
-        if app_id and statistics:
-            checkappid = AppStatistics.objects.filter(app_id=app_id).first()
-            if checkappid:
-                res = {"code":400,
-                "message": "Ops! app id already exists"}
-                return Response(data=res, status=400)
-            
-            checkstatistics = AppStatistics.objects.filter(statistics=statistics).first()
-            if checkstatistics:
-                res = {"code": 400, "message": "Ops! app statistics already exists"}
-                return Response(data=res, status=400)
+        limit = int(request.GET.get('limit', 12))
+        start_date = request.GET.get('startDate', None)
+        end_date = request.GET.get('endDate', None)
+        if start_date and end_date:
+            _app_statistics_list = AppStatistics.objects.filter(app_id=pk)\
+                .filter(time__range=(start_date, end_date)).order_by('id').all()
         else:
-            res = {"code": 400, "message": "Ops!app statistics app id and statistics can't be null"}
-            return Response(data=res, status=400)
-        app_statistics = AppStatistics.create(app_id, statistics, description)
+            _app_statistics_list = AppStatistics.objects.filter(app_id=pk).order_by('id')[:limit].all()
+        serializer = AppStatisticsSerializer(_app_statistics_list, many=True)
+        return JsonResponse(serializer.data, safe=False)
+    elif request.method == 'POST':
+        _statistics = request.data.get('statistics', None)
+        app_statistics = AppStatistics.create(statistics=_statistics, app_id=int(pk))
         app_statistics.save()
         serializer = AppStatisticsSerializer(app_statistics, many=False)
         return JsonResponse(serializer.data, safe=False)
-
-
-@api_view(['GET','PUT','DELETE'])
-def app_statistics_detail(request, pk):
-    """
-    Get,update or delete a specific app_statistics
-    """
-    try:
-        app_statistics = app_statistics.objects.get(pk=pk)
-    except app_statistics.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
-        serializer = AppStatisticsSerializer(app_statistics)
-        return JsonResponse(serializer.data)
-
-    elif request.method == 'PUT':
-        app_statistics.app_id = request.data.get('app_id',app_statistics.app_id)
-        app_statistics.statistics = request.data.get('statistics',
-            app_statistics.statistics)
-        app_statistics.save()
-        serializer = AppStatisticsSerializer(app_statistics)
-        return JsonResponse(serializer.data)
-
-    elif request.method == 'DELETE':
-        app_statistics.delete()
-        res = {"code": 200, "message": "Delete Suessus!"}
-        return Response(data=res, status=200)
 
 
 @api_view(['GET', 'POST'])

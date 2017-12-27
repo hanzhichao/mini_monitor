@@ -12,8 +12,7 @@ urlpatterns = [
     url(r'^api/apps/$', views.app_list),
     url(r'^api/apps/(?P<pk>[0-9]+)/$', views.app_detail),
 
-    url(r'^api/app_statistics/$', views.app_statistics_list),
-    url(r'^api/app_statistics/(?P<pk>[0-9]+)/$', views.app_statistics_detail),
+    url(r'^api/statistics/(?P<pk>[0-9]+)/$', views.app_statistics_list),
 
     url(r'^api/app_history/$', views.app_history_list),
     url(r'^api/app_history/(?P<pk>[0-9]+)/$', views.app_history_detail),

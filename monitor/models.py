@@ -36,8 +36,8 @@ class AppStatistics(models.Model):
 
     @classmethod
     def create(cls, app_id, statistics):
-        appStatistics = cls(app_id=app_id,statistics=statistics,)
-        return appStatistics    
+        app_statistics = cls(app_id=app_id, statistics=statistics)
+        return app_statistics
 
 
 class AppHistory(models.Model):

@@ -2,7 +2,7 @@
 <html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml"
       xmlns:v-if="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
+    <!--<meta charset="UTF-8">-->
     <link rel="stylesheet" href="../static/css/bootstrap.min.css">
     <title>Mini Monitor</title>
 </head>
@@ -33,8 +33,8 @@
                         <th>Message</th>
                     </tr>
                 </thead>
-                <tbody v-for="app in apps">
-                    <tr data-toggle="collapse" v-bind:data-target="'#history_' + app.id" v-on:click="getAppHistory(app.id)">
+                <tbody v-for="app in apps" id="app_group">
+                    <tr data-toggle="collapse" data-parent="#app_group" v-bind:data-target="'#history_' + app.id"  v-on:click="getAppHistory(app.id)" aria-expanded="true" aria-controls="'#history_' + app.id" >
                         <td width="5%" v-if="app.status=='OK'" align="center"><span class="glyphicon glyphicon-ok-sign" style="color: green;font-size: 18px;"></span></td>
                         <td width="5%" v-if="app.status=='ERROR'" align="center"><span class="glyphicon glyphicon-remove-sign" style="color:red;font-size: 18px;"></span></td>
                         <td width="5%" v-if="app.status=='WARN'" align="center"><span class="glyphicon glyphicon-exclamation-sign" style="color:orange;font-size: 18px;"></span></td>
@@ -44,47 +44,40 @@
                     </tr>
                     <tr class="collapse" v-bind:id="'history_' + app.id">
                         <td colspan="4" class="bg-info">
-                            <table class="table table-stripped">
+                            <highcharts id="map" v-show="display_map" :options="options" ref="highcharts"></highcharts>
+                            <hr>
+                            <div><span>History:&nbsp;</span>
+                                <span v-for="app_history in app_histories">
+                                    <span v-if="app_history.status=='OK'" class="label label-success">{{ app_history.status }}</span>
+                                    <span v-else-if="app_history.status=='WARN'" class="label label-warning">{{ app_history.status }}</span>
+                                    <span v-else class="label label-danger">{{ app_history.status }}</span>
+                                    <span class="glyphicon glyphicon-arrow-right"></span>
+                                </span>
+                            </div>
+                            <hr>
+                            <table class="table table-bordered">
                                 <tr>
-                                    <td>Map</td>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Message</th>
                                 </tr>
-                                <tr>
-                                    <td><span>History:&nbsp;</span>
-                                        <span v-for="app_history in app_histories">
-                                            <span v-if="app_history.status=='OK'" class="label label-success">{{ app_history.status }}</span>
-                                            <span v-else-if="app_history.status=='WARN'" class="label label-warning">{{ app_history.status }}</span>
-                                            <span v-else class="label label-danger">{{ app_history.status }}</span>
-                                            <span class="glyphicon glyphicon-arrow-right"></span>
-                                        </span>
-                                    </td>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><table class="table table-bordered">
-                                        <tr>
-                                            <th>Time</th>
-                                            <th>Status</th>
-                                            <th>Message</th>
-                                        </tr>
-                                        <tbody v-for="app_history in app_histories" >
-                                            <tr v-if="app_history.status=='OK'" class="bg-success">
-                                                <td width="5%">{{ app_history.status }}</td>
-                                                <td width="20%">{{ app_history.time }}</td>
-                                                <td width="75%">{{ app_history.message }}</td>
-                                            </tr>
-                                            <tr v-if="app_history.status=='WARN'" class="bg-warning">
-                                                <td width="5%">{{ app_history.status }}</td>
-                                                <td width="20%">{{ app_history.time }}</td>
-                                                <td width="75%">{{ app_history.message }}</td>
-                                            </tr>
-                                            <tr v-if="app_history.status=='ERROR'" class="bg-danger">
-                                                <td width="5%">{{ app_history.status }}</td>
-                                                <td width="20%">{{ app_history.time }}</td>
-                                                <td width="75%">{{ app_history.message }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table></td>
-                                </tr>
+                                <tbody v-for="app_history in app_histories" >
+                                    <tr v-if="app_history.status=='OK'" class="bg-success">
+                                        <td width="5%">{{ app_history.status }}</td>
+                                        <td width="20%">{{ app_history.time }}</td>
+                                        <td width="75%">{{ app_history.message }}</td>
+                                    </tr>
+                                    <tr v-if="app_history.status=='WARN'" class="bg-warning">
+                                        <td width="5%">{{ app_history.status }}</td>
+                                        <td width="20%">{{ app_history.time }}</td>
+                                        <td width="75%">{{ app_history.message }}</td>
+                                    </tr>
+                                    <tr v-if="app_history.status=='ERROR'" class="bg-danger">
+                                        <td width="5%">{{ app_history.status }}</td>
+                                        <td width="20%">{{ app_history.time }}</td>
+                                        <td width="75%">{{ app_history.message }}</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </td>
                     </tr>
@@ -92,13 +85,95 @@
             </table>
         </div>
 
+
+
+
+
+
+
+     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingOne">
+      <h4 class="panel-title">
+        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Collapsible Group Item #1
+        </a>
+      </h4>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+      <div class="panel-body">
+        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingTwo">
+      <h4 class="panel-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Collapsible Group Item #2
+        </a>
+      </h4>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+      <div class="panel-body">
+        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingThree">
+      <h4 class="panel-title">
+        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Collapsible Group Item #3
+        </a>
+      </h4>
+    </div>
+    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+      <div class="panel-body">
+        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </div>
 </div>
 <script src="../static/js/vue.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="../static/js/vue-resource.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="../static/js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/js/highcharts.js" type="text/javascript" charset="utf-8"></script>
+<script src="../static/js/vue-highcharts.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="../static/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
 <script src="../static/js/monitor.js" type="text/javascript" charset="utf-8"></script>
+
 <script>
 
 </script>
